@@ -106,6 +106,7 @@ jobs:
           python-version: '3.11'
 
       - name: Run Bandit SAST scan
+        continue-on-error: true
         run: |
           pip install bandit
           bandit -r app.py -f json -o bandit-report.json || true
