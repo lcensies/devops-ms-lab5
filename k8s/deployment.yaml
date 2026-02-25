@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: calc-app
+  namespace: calc-app
+  labels:
+    app: calc-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: calc-app
+  template:
+    metadata:
+      labels:
+        app: calc-app
+    spec:
+      containers:
+        - name: calc-app
+          image: calc-app:local
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "100m"
+            limits:
+              memory: "128Mi"
+              cpu: "250m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: calc-app
+  namespace: calc-app
+spec:
+  selector:
+    app: calc-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP
